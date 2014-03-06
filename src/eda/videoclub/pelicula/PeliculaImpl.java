@@ -1,6 +1,7 @@
 package eda.videoclub.pelicula;
 
 import java.util.Calendar;
+import java.util.Comparator;
 
 //TODO
 public class PeliculaImpl implements Pelicula, Comparable<Pelicula> {
@@ -105,5 +106,68 @@ public class PeliculaImpl implements Pelicula, Comparable<Pelicula> {
 			result = getTitulo().compareTo(other.getTitulo());
 		}
 		return result;
+	}
+	
+	@Override
+	public int hashCode() {
+		
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((titulo == null) ? 0:
+			titulo.hashCode());
+		return result;
+	}
+	
+	public boolean equals(Object obj) {
+		
+		if(this == obj)
+			return true;
+		if(obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		PeliculaImpl other = (PeliculaImpl) obj;
+		if (titulo == null) {
+			if (other.titulo != null)
+				return false;
+		} else if (!titulo.equals(other.titulo))
+			return false;
+		return true;
+	}
+	
+	@Override
+	public Pelicula clone() {
+		
+		Pelicula copia = null;
+		try {
+			copia = (Pelicula) super.clone();
+		} catch (CloneNotSupportedException e) {
+			e.printStackTrace();
+		}
+		return copia;
+	}
+	
+	@Override
+	public String toString() {
+		
+		String s;
+		s = titulo + "," + director + "," + duracion + "," +
+		distribuidora + "," + nacionalidad + "," + fechaEstreno.getTime().toString() +
+		"," + divisa;
+		return s;
+	}
+	
+	static class OrdenPeliculaFechaEstreno implements Comparator<Pelicula> {
+		
+		public int compare(Pelicula p0, Pelicula p1) {
+			return p0.getDuracion() - p1.getDuracion();
+		}
+	}
+	
+	static class OrdenPeliculaDuracion implements Comparator<Pelicula> {
+		
+		public int compare(Pelicula p0, Pelicula p1) {
+			return p0.getDuracion() - p1.getDuracion();
+		}
 	}
 }
