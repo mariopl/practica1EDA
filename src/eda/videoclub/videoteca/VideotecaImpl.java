@@ -8,9 +8,15 @@ import java.util.Set;
 
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Maps;
+import com.google.common.collect.Ordering;
 import com.google.common.collect.Sets;
 
+import eda.videoclub.functions.FunctionCambiaDivisaRecaudacion;
+import eda.videoclub.functions.FunctionDirectores;
 import eda.videoclub.pelicula.Pelicula;
+import eda.videoclub.pelicula.PeliculaImpl;
+import eda.videoclub.predicates.PredicateDirectorIgualA;
+import eda.videoclub.predicates.PredicateFechaPosteriorA;
 
 public class VideotecaImpl implements Set<Pelicula>, Videoteca {
 	
@@ -28,14 +34,14 @@ public class VideotecaImpl implements Set<Pelicula>, Videoteca {
 	
 	public Set<Pelicula> getPeliculasDirectorIgualA(String director) {
 		
-		return Sets.newHasSet(Iterables.filter(disponibilidad.keySet(), 
+		return Sets.newHashSet(Iterables.filter(disponibilidad.keySet(), 
 				new PredicateDirectorIgualA(director)));
 	}
 	
 	public Set<Pelicula> getPeliculasFechaPosteriorA(Calendar fecha) {
 		
-		Sets.newHashSet(Iterables.filter(disponibilidad.keySet(), 
-				PredicateFechaPosteriorA(fecha)));
+		return Sets.newHashSet(Iterables.filter(disponibilidad.keySet(), 
+				new PredicateFechaPosteriorA(fecha)));
 	}
 
 	@Override
@@ -48,91 +54,121 @@ public class VideotecaImpl implements Set<Pelicula>, Videoteca {
 	@Override
 	public Set<String> getDirectores() {
 
-		return Sets.newHashSet(Iterables.transform(disponibilidad.keySet,
+		return Sets.newHashSet(Iterables.transform(disponibilidad.keySet(),
 				new FunctionDirectores()));
 	}
 
 	@Override
 	public Pelicula getPeliculaMasLarga() {
-		// TODO Auto-generated method stub
-		return null;
+		
+		Ordering<Pelicula> ord = Ordering.from(PeliculaImpl.getOrdenPeliculaDuracion());
+		return ord.max(disponibilidad.keySet());
 	}
 
 	@Override
 	public int size() {
-		// TODO Auto-generated method stub
-		return 0;
+
+		return disponibilidad.size();
 	}
 
 	@Override
 	public boolean isEmpty() {
-		// TODO Auto-generated method stub
-		return false;
+
+		return disponibilidad.isEmpty();
 	}
 
 	@Override
 	public boolean contains(Object o) {
-		// TODO Auto-generated method stub
-		return false;
+
+		return disponibilidad.keySet().contains(o);
 	}
 
 	@Override
 	public Iterator<Pelicula> iterator() {
-		// TODO Auto-generated method stub
-		return null;
+
+		return disponibilidad.keySet().iterator();
 	}
 
 	@Override
 	public Object[] toArray() {
-		// TODO Auto-generated method stub
-		return null;
+
+		return disponibilidad.keySet().toArray();
 	}
 
 	@Override
 	public <T> T[] toArray(T[] a) {
-		// TODO Auto-generated method stub
-		return null;
+
+		return disponibilidad.keySet().toArray(a);
 	}
 
 	@Override
-	public boolean add(Pelicula e) {
-		// TODO Auto-generated method stub
-		return false;
+	public boolean add(Pelicula p) {
+		
+		boolean ret;
+		
+		Integer numPeliculas = disponibilidad.get(p);
+		if(numPeliculas == null) {
+			ret = true;
+			disponibilidad.put(p,1);
+		} else {
+			disponibilidad.put(p, numPeliculas + 1);
+			ret = false;
+		}
+		return ret;
 	}
 
 	@Override
 	public boolean remove(Object o) {
-		// TODO Auto-generated method stub
-		return false;
+
+		boolean modificado = false;
+		
+		Integer numPeliculas = disponibilidad.get(o);
+		if(numPeliculas != null) {
+			if(numPeliculas == 1) {
+				modificado = true;
+				disponibilidad.remove(o); 
+			} else {
+				disponibilidad.put((Pelicula) o,numPeliculas - 1);
+			}
+		}
+		return modificado;
 	}
 
 	@Override
 	public boolean containsAll(Collection<?> c) {
-		// TODO Auto-generated method stub
-		return false;
+
+		return disponibilidad.keySet().containsAll(c);
 	}
 
 	@Override
 	public boolean addAll(Collection<? extends Pelicula> c) {
-		// TODO Auto-generated method stub
-		return false;
+		
+		boolean modificado = false;
+		
+		for(Pelicula p:c) {
+			
+			modificado = this.add(p) || modificado;
+		}
+		
+		return modificado;
 	}
 
 	@Override
 	public boolean retainAll(Collection<?> c) {
-		// TODO Auto-generated method stub
-		return false;
+		
+		return disponibilidad.keySet().retainAll(c);
 	}
 
 	@Override
 	public boolean removeAll(Collection<?> c) {
-		// TODO Auto-generated method stub
-		return false;
+
+		return disponibilidad.keySet().removeAll(c);
 	}
 
 	@Override
 	public void clear() {
-		// TODO Auto-generated method stub
+		
+		disponibilidad.clear();
 		
 	}
 
